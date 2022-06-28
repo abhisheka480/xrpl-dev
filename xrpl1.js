@@ -1,10 +1,11 @@
 const xrpl = require("xrpl");
 const { config } = require("./config");
 const { testnetWallet } = require("./testnetwallet");
+const { xrplClient, walletCreate, prepareTx } = require("./utils/utils");
 
 async function main() {
   // Define the network client
-  const client = await xrplClient();
+  const client = await xrplClient(config.TESTNET_SERVER);
 
   //create wallet
   //   newXrplWallet = walletCreate();
@@ -42,33 +43,6 @@ async function main() {
 
   // Disconnect when done (If you omit this, Node.js won't end the process)
   client.disconnect();
-}
-
-async function xrplClient() {
-  const client = new xrpl.Client(config.TESTNET_SERVER);
-  await client.connect();
-  return client;
-}
-
-function walletCreate() {
-  const test_wallet = xrpl.Wallet.generate();
-  console.log(test_wallet);
-  return test_wallet;
-}
-
-async function prepareTx(client, wallet, amount, txType, destAddress) {
-  // Prepare transaction -------------------------------------------------------
-  const prepared = await client.autofill({
-    TransactionType: txType,
-    Account: wallet.address,
-    Amount: xrpl.xrpToDrops(amount),
-    Destination: destAddress,
-  });
-  const max_ledger = prepared.LastLedgerSequence;
-  console.log("Prepared transaction instructions:", prepared);
-  console.log("Transaction cost:", xrpl.dropsToXrp(prepared.Fee), "XRP");
-  console.log("Transaction expires after ledger:", max_ledger);
-  return prepared;
 }
 
 main();
